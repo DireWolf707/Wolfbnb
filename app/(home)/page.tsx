@@ -1,7 +1,12 @@
 import React from 'react'
+import Categories from '@/components/layout/Categories'
 
 const Home = () => {
-    return <div>Home</div>
+    return (
+        <>
+            <Categories />
+        </>
+    )
 }
 
 export default Home
