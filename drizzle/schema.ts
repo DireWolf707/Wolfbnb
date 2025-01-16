@@ -1,37 +1,67 @@
-import { topics } from '@/lib/constants'
 import {
     pgTable,
-    uuid,
-    varchar,
     timestamp,
     text,
     primaryKey,
     integer,
+    uuid,
+    varchar,
 } from 'drizzle-orm/pg-core'
 import type { AdapterAccountType } from 'next-auth/adapters'
 
-export const postTable = pgTable('post', {
+export const userTable = pgTable('user', {
     id: uuid().primaryKey().defaultRandom(),
-    title: varchar({ length: 50 }).notNull(),
-    content: varchar({ length: 50 }).notNull(),
-    createdAt: timestamp('created_at').notNull().defaultNow(),
-    topic: varchar({ length: 20, enum: topics }).notNull(),
+    name: text(),
+    email: text().unique(),
+    emailVerified: timestamp({ mode: 'date' }),
+    image: text(),
 })
 
-export const userTable = pgTable('user', {
-    id: text('id')
-        .primaryKey()
-        .$defaultFn(() => crypto.randomUUID()),
-    name: text('name'),
-    email: text('email').unique(),
-    emailVerified: timestamp('emailVerified', { mode: 'date' }),
-    image: text('image'),
+export const listingTable = pgTable('listing', {
+    id: uuid().primaryKey().defaultRandom(),
+    userId: uuid().references(() => userTable.id, { onDelete: 'cascade' }),
+    title: text(),
+    description: text(),
+    image: text(),
+    createdAt: timestamp().defaultNow(),
+    category: varchar({ length: 20 }), // TODO: enum
+    roomCount: integer(),
+    bathroomCount: integer(),
+    guestCount: integer(),
+    location: text(),
+    price: integer(),
+})
+
+export const favouriteTable = pgTable(
+    'favorite',
+    {
+        userId: uuid().references(() => userTable.id, { onDelete: 'cascade' }),
+        listingId: uuid().references(() => listingTable.id, {
+            onDelete: 'cascade',
+        }),
+    },
+    (favouriteTable) => [
+        primaryKey({
+            columns: [favouriteTable.userId, favouriteTable.listingId],
+        }),
+    ]
+)
+
+export const reservationTable = pgTable('reservation', {
+    id: uuid().primaryKey().defaultRandom(),
+    userId: uuid().references(() => userTable.id, { onDelete: 'cascade' }),
+    listingId: uuid().references(() => listingTable.id, {
+        onDelete: 'cascade',
+    }),
+    startDate: timestamp({ mode: 'date' }),
+    endDate: timestamp({ mode: 'date' }),
+    createdAt: timestamp().defaultNow(),
 })
 
 export const accountTable = pgTable(
     'account',
     {
-        userId: text('userId')
+        userId: uuid('userId')
             .notNull()
             .references(() => userTable.id, { onDelete: 'cascade' }),
         type: text('type').$type<AdapterAccountType>().notNull(),
@@ -45,9 +75,9 @@ export const accountTable = pgTable(
         id_token: text('id_token'),
         session_state: text('session_state'),
     },
-    (account) => [
+    (accountTable) => [
         primaryKey({
-            columns: [account.provider, account.providerAccountId],
+            columns: [accountTable.provider, accountTable.providerAccountId],
         }),
     ]
 )
