@@ -1,22 +1,15 @@
 import { z } from 'zod'
-import { topics } from './constants'
+import { CATEGORY } from './types'
 
-export const postSchema = z.object({
-    title: z
-        .string()
-        .min(2, {
-            message: 'Title must be at least 2 characters.',
-        })
-        .max(50, {
-            message: 'Title must not be longer than 50 characters.',
-        }),
-    content: z
-        .string()
-        .min(10, {
-            message: 'Content must be at least 10 characters.',
-        })
-        .max(50, {
-            message: 'Content must not be longer than 50 characters.',
-        }),
-    topic: z.enum(topics),
+export const listingSchema = z.object({
+    category: z.enum(Object.values(CATEGORY) as [string, ...string[]]),
+    location: z.string(),
+    title: z.string(),
+    imageSrc: z.string(),
+    description: z.string(),
+    guestCount: z.number(),
+    roomCount: z.number(),
+    bathroomCount: z.number(),
+    price: z.number(),
 })
+export const unsafeListingSchema = listingSchema.partial()
