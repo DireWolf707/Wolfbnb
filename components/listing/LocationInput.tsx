@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import {
     Select,
     SelectContent,
@@ -7,16 +7,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select'
-import countries from 'world-countries'
-import { countryT } from '@/lib/types'
-
-const formattedCountries: countryT[] = countries.map((c) => ({
-    value: c.cca2,
-    label: c.name.common,
-    flag: c.flag,
-    latlng: c.latlng,
-    region: c.region,
-}))
+import useCountries from '@/lib/hooks/useCountries'
+import dynamic from 'next/dynamic'
 
 const LocationInput = ({
     value,
@@ -25,28 +17,51 @@ const LocationInput = ({
     value: string
     onClick: (val: string) => void
 }) => {
-    return (
-        <Select value={value} onValueChange={onClick}>
-            <SelectTrigger>
-                <SelectValue placeholder="Select country" />
-            </SelectTrigger>
+    const { countries, getCountryByVal } = useCountries()
+    const [center, setCenter] = useState<[number, number] | null>(null)
 
-            <SelectContent>
-                {formattedCountries.map((val) => (
-                    <SelectItem value={val.value} key={val.value}>
-                        <div className="flex items-center gap-3">
-                            <div>{val.flag}</div>
-                            <div className="font-bold">
-                                {val.label},&nbsp;
-                                <span className="text-sm font-extralight">
-                                    {val.region}
-                                </span>
+    useEffect(() => {
+        const currCountry = getCountryByVal(value)
+        if (!currCountry) return
+
+        setCenter(currCountry.latlng)
+    }, [value, getCountryByVal])
+
+    const Map = useMemo(
+        () =>
+            dynamic(() => import('./Map'), {
+                ssr: false,
+            }),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [center]
+    )
+
+    return (
+        <>
+            <Select value={value} onValueChange={onClick}>
+                <SelectTrigger>
+                    <SelectValue placeholder="Select country" />
+                </SelectTrigger>
+
+                <SelectContent className="z-[9999]">
+                    {countries.map((val) => (
+                        <SelectItem value={val.value} key={val.value}>
+                            <div className="flex items-center gap-3">
+                                <div>{val.flag}</div>
+                                <div className="font-bold">
+                                    {val.label},&nbsp;
+                                    <span className="text-sm font-extralight">
+                                        {val.region}
+                                    </span>
+                                </div>
                             </div>
-                        </div>
-                    </SelectItem>
-                ))}
-            </SelectContent>
-        </Select>
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+
+            <Map center={center} />
+        </>
     )
 }
 
