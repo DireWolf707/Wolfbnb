@@ -15,81 +15,83 @@ import {
     WavesLadderIcon,
     WindIcon,
 } from 'lucide-react'
-import { categortyT, CATEGORY } from './types'
+import { categortyListT } from './types'
 
-export const categories: categortyT[] = [
+export const MAX_FILESIZE = 3 * 1024 * 1024
+
+export const categories: categortyListT[] = [
     {
-        label: CATEGORY.Beach,
+        label: 'Beach',
         Icon: VolleyballIcon,
         description: 'This property is close to the beach!',
     },
     {
-        label: CATEGORY.Windmills,
+        label: 'Windmills',
         Icon: WindIcon,
         description: 'This property is has windmills!',
     },
     {
-        label: CATEGORY.Modern,
+        label: 'Modern',
         Icon: BuildingIcon,
         description: 'This property is modern!',
     },
     {
-        label: CATEGORY.Countryside,
+        label: 'Countryside',
         Icon: GuitarIcon,
         description: 'This property is in the countryside!',
     },
     {
-        label: CATEGORY.Pools,
+        label: 'Pools',
         Icon: WavesLadderIcon,
         description: 'This is property has a beautiful pool!',
     },
     {
-        label: CATEGORY.Islands,
+        label: 'Islands',
         Icon: TreePalmIcon,
         description: 'This property is on an island!',
     },
     {
-        label: CATEGORY.Lake,
+        label: 'Lake',
         Icon: SailboatIcon,
         description: 'This property is near a lake!',
     },
     {
-        label: CATEGORY.Skiing,
+        label: 'Skiing',
         Icon: CableCarIcon,
         description: 'This property has skiing activies!',
     },
     {
-        label: CATEGORY.Castles,
+        label: 'Castles',
         Icon: CastleIcon,
         description: 'This property is an ancient castle!',
     },
     {
-        label: CATEGORY.Caves,
+        label: 'Caves',
         Icon: MountainIcon,
         description: 'This property is in a spooky cave!',
     },
     {
-        label: CATEGORY.Camping,
+        label: 'Camping',
         Icon: TentIcon,
         description: 'This property offers camping activities!',
     },
     {
-        label: CATEGORY.Arctic,
+        label: 'Arctic',
         Icon: SnowflakeIcon,
         description: 'This property is in arctic environment!',
     },
     {
-        label: CATEGORY.Desert,
+        label: 'Desert',
         Icon: DropletOffIcon,
         description: 'This property is in the desert!',
     },
     {
-        label: CATEGORY.Barns,
+        label: 'Barns',
         Icon: MagnetIcon,
         description: 'This property is in a barn!',
     },
     {
-        label: CATEGORY.Lux,
+        label: 'Lux',
         Icon: GemIcon,
         description: 'This property is brand new and luxurious!',
     },

@@ -1,3 +1,4 @@
+import { categoryEnumArray } from '@/lib/types'
 import {
     pgTable,
     timestamp,
@@ -19,12 +20,17 @@ export const userTable = pgTable('user', {
 
 export const listingTable = pgTable('listing', {
     id: uuid().primaryKey().defaultRandom(),
-    userId: uuid().references(() => userTable.id, { onDelete: 'cascade' }),
+    userId: uuid()
+        .notNull()
+        .references(() => userTable.id, { onDelete: 'cascade' }),
     title: text(),
     description: text(),
     image: text(),
     createdAt: timestamp().defaultNow(),
-    category: varchar({ length: 20 }), // TODO: enum
+    category: varchar({
+        length: 20,
+        enum: categoryEnumArray,
+    }),
     roomCount: integer(),
     bathroomCount: integer(),
     guestCount: integer(),
@@ -35,10 +41,14 @@ export const listingTable = pgTable('listing', {
 export const favouriteTable = pgTable(
     'favorite',
     {
-        userId: uuid().references(() => userTable.id, { onDelete: 'cascade' }),
-        listingId: uuid().references(() => listingTable.id, {
-            onDelete: 'cascade',
-        }),
+        userId: uuid()
+            .notNull()
+            .references(() => userTable.id, { onDelete: 'cascade' }),
+        listingId: uuid()
+            .notNull()
+            .references(() => listingTable.id, {
+                onDelete: 'cascade',
+            }),
     },
     (favouriteTable) => [
         primaryKey({
@@ -49,10 +59,14 @@ export const favouriteTable = pgTable(
 
 export const reservationTable = pgTable('reservation', {
     id: uuid().primaryKey().defaultRandom(),
-    userId: uuid().references(() => userTable.id, { onDelete: 'cascade' }),
-    listingId: uuid().references(() => listingTable.id, {
-        onDelete: 'cascade',
-    }),
+    userId: uuid()
+        .notNull()
+        .references(() => userTable.id, { onDelete: 'cascade' }),
+    listingId: uuid()
+        .notNull()
+        .references(() => listingTable.id, {
+            onDelete: 'cascade',
+        }),
     startDate: timestamp({ mode: 'date' }),
     endDate: timestamp({ mode: 'date' }),
     createdAt: timestamp().defaultNow(),

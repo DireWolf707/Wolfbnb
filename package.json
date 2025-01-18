@@ -32,12 +32,14 @@
         "query-string": "^9.1.1",
         "react": "^19.0.0",
         "react-dom": "^19.0.0",
+        "react-dropzone": "^14.3.5",
         "react-hook-form": "^7.54.1",
         "react-leaflet": "^5.0.0",
         "react-world-flags": "^1.6.0",
         "sonner": "^1.7.1",
         "tailwind-merge": "^2.5.5",
         "tailwindcss-animate": "^1.0.7",
+        "uploadthing": "^7.4.4",
         "zod": "^3.24.1"
     },
     "devDependencies": {

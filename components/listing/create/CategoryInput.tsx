@@ -1,4 +1,5 @@
 import { categories } from '@/lib/constants'
+import { categortyT } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import React from 'react'
 
@@ -7,7 +8,7 @@ const CategoryInput = ({
     onClick,
 }: {
     value: string
-    onClick: (val: string) => void
+    onClick: (val: categortyT) => void
 }) => {
     return (
         <div className="grid grid-cols-1 gap-3 overflow-y-auto pr-1 md:grid-cols-2">

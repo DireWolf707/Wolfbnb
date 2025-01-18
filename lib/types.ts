@@ -1,30 +1,39 @@
 import { z } from 'zod'
 import { listingSchema, unsafeListingSchema } from './zodSchemas'
 import type { LucideIcon } from 'lucide-react'
+import { listingTable } from '@/drizzle/schema'
 
-export type listingT = z.infer<typeof listingSchema>
-export type unsafeListingT = z.infer<typeof unsafeListingSchema>
+export type createListingT = z.infer<typeof listingSchema>
+export type unsafeCreateListingT = z.infer<typeof unsafeListingSchema>
 
-export enum CATEGORY {
-    Beach = 'Beach',
-    Windmills = 'Windmills',
-    Modern = 'Modern',
-    Countryside = 'Countryside',
-    Pools = 'Pools',
-    Islands = 'Islands',
-    Lake = 'Lake',
-    Skiing = 'Skiing',
-    Castles = 'Castles',
-    Caves = 'Caves',
-    Camping = 'Camping',
-    Arctic = 'Arctic',
-    Desert = 'Desert',
-    Barns = 'Barns',
-    Lux = 'Lux',
-}
+export type createListingFieldT = keyof createListingT
+export type createListingValueT = createListingT[createListingFieldT]
+export type createListingFormStepT = { [k in STEPS]: createListingFieldT[] }
 
-export type categortyT = {
-    label: CATEGORY
+export type viewListingT = typeof listingTable.$inferSelect
+
+export const categoryEnumArray = [
+    'Beach',
+    'Windmills',
+    'Modern',
+    'Countryside',
+    'Pools',
+    'Islands',
+    'Lake',
+    'Skiing',
+    'Castles',
+    'Caves',
+    'Camping',
+    'Arctic',
+    'Desert',
+    'Barns',
+    'Lux',
+] as const
+
+export type categortyT = (typeof categoryEnumArray)[number]
+
+export type categortyListT = {
+    label: categortyT
     Icon: LucideIcon
     description: string
 }
@@ -33,7 +42,7 @@ export enum STEPS {
     CATEGORY,
     LOCATION,
     INFO,
-    IMAGES,
+    IMAGE,
     DESCRIPTION,
     PRICE,
 }
@@ -45,3 +54,5 @@ export type countryT = {
     latlng: [number, number]
     region: string
 }
+
+export type MyFile = File & { preview?: string }

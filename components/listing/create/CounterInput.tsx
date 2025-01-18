@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react'
-import FormHeading from './FormHeading'
-import { Button } from '../ui/button'
+import { Button } from '../../ui/button'
 import { MinusIcon, PlusIcon } from 'lucide-react'
+import Heading from '@/components/layout/Heading'
 
 const CounterInput = ({
     value,
@@ -26,10 +26,11 @@ const CounterInput = ({
 
     return (
         <div className="flex justify-between">
-            <FormHeading title={title} subtitle={subtitle} />
+            <Heading title={title} subtitle={subtitle} />
 
             <div className="flex items-center gap-2">
                 <Button
+                    type="button"
                     onClick={onReduce}
                     variant="destructive"
                     size="icon"
@@ -41,6 +42,7 @@ const CounterInput = ({
                 {value}
 
                 <Button
+                    type="button"
                     onClick={onAdd}
                     variant="destructive"
                     size="icon"
