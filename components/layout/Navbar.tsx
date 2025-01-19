@@ -8,13 +8,13 @@ import { User } from 'next-auth'
 const Navbar = ({ user }: { user: User | undefined }) => {
     return (
         <div className="flex items-center justify-between gap-2 border-b-2 p-2">
-            <Link href="/">
+            <Link href="/" className="hidden md:block">
                 <Image
                     alt="logo"
-                    className="hidden md:block"
                     height={0}
-                    width={200}
+                    width={180}
                     src="/images/logo.png"
+                    className="h-full"
                 />
             </Link>
 

@@ -8,7 +8,7 @@ const Avatar = ({ user }: { user: User | undefined }) => {
         <Image
             alt="logo"
             className={cn('rounded-full', user && 'p-1')}
-            height={0}
+            height={30}
             width={30}
             src={user?.image ? user.image : '/images/placeholder.png'}
         />
