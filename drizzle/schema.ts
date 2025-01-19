@@ -12,8 +12,8 @@ import type { AdapterAccountType } from 'next-auth/adapters'
 
 export const userTable = pgTable('user', {
     id: uuid().primaryKey().defaultRandom(),
-    name: text(),
-    email: text().unique(),
+    name: text().notNull(),
+    email: text().notNull().unique(),
     emailVerified: timestamp({ mode: 'date' }),
     image: text(),
 })
@@ -23,19 +23,19 @@ export const listingTable = pgTable('listing', {
     userId: uuid()
         .notNull()
         .references(() => userTable.id, { onDelete: 'cascade' }),
-    title: text(),
-    description: text(),
-    image: text(),
+    title: text().notNull(),
+    description: text().notNull(),
+    image: text().notNull(),
     createdAt: timestamp().defaultNow(),
     category: varchar({
         length: 20,
         enum: categoryEnumArray,
-    }),
-    roomCount: integer(),
-    bathroomCount: integer(),
-    guestCount: integer(),
-    location: text(),
-    price: integer(),
+    }).notNull(),
+    roomCount: integer().notNull(),
+    bathroomCount: integer().notNull(),
+    guestCount: integer().notNull(),
+    location: text().notNull(),
+    price: integer().notNull(),
 })
 
 export const favouriteTable = pgTable(
@@ -67,8 +67,9 @@ export const reservationTable = pgTable('reservation', {
         .references(() => listingTable.id, {
             onDelete: 'cascade',
         }),
-    startDate: timestamp({ mode: 'date' }),
-    endDate: timestamp({ mode: 'date' }),
+    price: integer().notNull(),
+    startDate: timestamp({ mode: 'date' }).notNull(),
+    endDate: timestamp({ mode: 'date' }).notNull(),
     createdAt: timestamp().defaultNow(),
 })
 
