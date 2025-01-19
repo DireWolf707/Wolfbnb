@@ -20,5 +20,3 @@ export const listingSchema = z.object({
     bathroomCount: z.number().min(1),
     price: z.number().min(1),
 })
-
-export const unsafeListingSchema = listingSchema.partial()

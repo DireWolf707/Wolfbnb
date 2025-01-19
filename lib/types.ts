@@ -1,16 +1,19 @@
 import { z } from 'zod'
-import { listingSchema, unsafeListingSchema } from './zodSchemas'
+import { listingSchema } from './zodSchemas'
 import type { LucideIcon } from 'lucide-react'
-import { listingTable } from '@/drizzle/schema'
+import { listingTable, reservationTable } from '@/drizzle/schema'
 
 export type createListingT = z.infer<typeof listingSchema>
-export type unsafeCreateListingT = z.infer<typeof unsafeListingSchema>
+export type unsafeCreateListingT = Partial<createListingT>
 
 export type createListingFieldT = keyof createListingT
 export type createListingValueT = createListingT[createListingFieldT]
 export type createListingFormStepT = { [k in STEPS]: createListingFieldT[] }
 
 export type viewListingT = typeof listingTable.$inferSelect
+export type viewReservationT = typeof reservationTable.$inferSelect
+
+export type filterListingT = Partial<Pick<viewListingT, 'category'>>
 
 export const categoryEnumArray = [
     'Beach',
