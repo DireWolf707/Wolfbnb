@@ -3,9 +3,11 @@ import Link from 'next/link'
 import Image from 'next/image'
 import Search from './Search'
 import UserMenu from './UserMenu'
-import { User } from 'next-auth'
+import { auth } from '@/auth'
 
-const Navbar = ({ user }: { user: User | undefined }) => {
+const Navbar = async () => {
+    const session = await auth()
+
     return (
         <div className="flex items-center justify-between gap-2 border-b-2 p-2">
             <Link href="/" className="hidden md:block">
@@ -20,7 +22,7 @@ const Navbar = ({ user }: { user: User | undefined }) => {
 
             <Search />
 
-            <UserMenu user={user} />
+            <UserMenu user={session?.user} />
         </div>
     )
 }

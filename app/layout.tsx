@@ -5,7 +5,6 @@ import ReactQueryProvider from '@/components/provider/ReactQueryProvider'
 import ThemeProvider from '@/components/provider/ThemeProvider'
 import { Nunito } from 'next/font/google'
 import { cn } from '@/lib/utils'
-import { auth } from '@/auth'
 
 export const metadata: Metadata = {
     title: 'Create Next App',
@@ -21,8 +20,6 @@ export default async function RootLayout({
 }: Readonly<{
     children: React.ReactNode
 }>) {
-    const session = await auth()
-
     return (
         <html lang="en" suppressHydrationWarning>
             <body className={cn('flex h-screen flex-col', font.className)}>
@@ -33,7 +30,7 @@ export default async function RootLayout({
                     disableTransitionOnChange
                 >
                     <ReactQueryProvider>
-                        <Navbar user={session?.user} />
+                        <Navbar />
                         {children}
                     </ReactQueryProvider>
                 </ThemeProvider>

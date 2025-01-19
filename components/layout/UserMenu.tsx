@@ -13,7 +13,7 @@ import { signIn, signOut } from 'next-auth/react'
 import { Button } from '../ui/button'
 import Link from 'next/link'
 
-const UserMenu = ({ user }: { user: User | undefined }) => {
+const UserMenu = ({ user }: { user?: User }) => {
     return (
         <div className="flex items-center gap-3">
             <Button
