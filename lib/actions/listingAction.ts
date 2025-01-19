@@ -1,14 +1,18 @@
 'use server'
 import db from '@/drizzle/client'
 import storage from '@/uploadThing/client'
-import { listingTable } from '@/drizzle/schema'
-import { createListingT, filterListingT } from '../types'
+import { favouriteTable, listingTable } from '@/drizzle/schema'
+import {
+    createListingT,
+    filterListingT,
+    viewListingWithFavoriteT,
+} from '../types'
 import { listingSchema } from '../zodSchemas'
-import { auth } from '@/auth'
-import { and, desc, eq, SQL } from 'drizzle-orm'
+import { and, desc, eq, getTableColumns, SQL } from 'drizzle-orm'
+import { getUser } from '../serverUtils'
 
 export const createListingAction = async (_data: createListingT) => {
-    const session = await auth()
+    const user = await getUser()
     const data = listingSchema.parse(_data)
 
     const image = (await storage.uploadFiles(data.image)).data?.url
@@ -16,19 +20,74 @@ export const createListingAction = async (_data: createListingT) => {
 
     return await db
         .insert(listingTable)
-        .values({ ...data, image, userId: session!.user!.id! })
+        .values({ ...data, image, userId: user!.id! })
         .returning()
 }
 
 export const getAllListingAction = async (filters: filterListingT) => {
+    const user = await getUser(false)
+
     const conditions: SQL[] = []
 
     if (filters.category)
         conditions.push(eq(listingTable.category, filters.category))
 
-    return await db
+    const sq = db
         .select()
         .from(listingTable)
         .where(and(...conditions))
-        .orderBy(desc(listingTable.createdAt))
+        .as('listing')
+
+    let result: viewListingWithFavoriteT[]
+    if (!user)
+        result = await db
+            .select()
+            .from(sq)
+            .orderBy(desc(listingTable.createdAt))
+    else
+        result = await db
+            .select({
+                ...getTableColumns(listingTable),
+                isFavorite: favouriteTable,
+            })
+            .from(sq)
+            .leftJoin(
+                favouriteTable,
+                and(
+                    eq(listingTable.id, favouriteTable.listingId),
+                    eq(listingTable.userId, user.id!)
+                )
+            )
+            .orderBy(desc(listingTable.createdAt))
+
+    return result
+}
+
+export const favoriteListingAction = async (listingId: string) => {
+    if (!listingId) throw new Error('Listing id is missing!')
+
+    const user = await getUser()
+
+    await db
+        .insert(favouriteTable)
+        .values({
+            listingId,
+            userId: user!.id!,
+        })
+        .onConflictDoNothing()
+}
+
+export const unfavoriteListingAction = async (listingId: string) => {
+    if (!listingId) throw new Error('Listing id is missing!')
+
+    const user = await getUser()
+
+    await db
+        .delete(favouriteTable)
+        .where(
+            and(
+                eq(favouriteTable.userId, user!.id!),
+                eq(favouriteTable.listingId, listingId)
+            )
+        )
 }

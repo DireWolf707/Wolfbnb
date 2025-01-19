@@ -1,7 +1,11 @@
 import { z } from 'zod'
 import { listingSchema } from './zodSchemas'
 import type { LucideIcon } from 'lucide-react'
-import { listingTable, reservationTable } from '@/drizzle/schema'
+import {
+    favouriteTable,
+    listingTable,
+    reservationTable,
+} from '@/drizzle/schema'
 
 export type createListingT = z.infer<typeof listingSchema>
 export type unsafeCreateListingT = Partial<createListingT>
@@ -10,7 +14,13 @@ export type createListingFieldT = keyof createListingT
 export type createListingValueT = createListingT[createListingFieldT]
 export type createListingFormStepT = { [k in STEPS]: createListingFieldT[] }
 
+export type viewFavoriteT = typeof favouriteTable.$inferSelect
+
 export type viewListingT = typeof listingTable.$inferSelect
+export type viewListingWithFavoriteT = viewListingT & {
+    isFavorite?: viewFavoriteT | null
+}
+
 export type viewReservationT = typeof reservationTable.$inferSelect
 
 export type filterListingT = Partial<Pick<viewListingT, 'category'>>
