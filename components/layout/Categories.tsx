@@ -39,7 +39,7 @@ const Categories = () => {
     )
 
     return (
-        <div className="flex items-center justify-center gap-2 overflow-x-auto p-2">
+        <div className="flex shrink-0 items-center justify-center gap-2 overflow-y-auto p-2">
             {categories.map(({ label, description, Icon }) => {
                 const isSelected = params.get('category') == label
 
