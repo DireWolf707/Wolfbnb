@@ -1,11 +1,18 @@
-import { viewListingT } from '@/lib/types'
+import { viewListingWithFavoriteT } from '@/lib/types'
 import React, { useMemo } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import FavoriteButton from './FavoriteButton'
 import useCountries from '@/lib/hooks/useCountries'
+import { User } from 'next-auth'
 
-const ListingCard = ({ listing }: { listing: viewListingT }) => {
+const ListingCard = ({
+    listing,
+    user,
+}: {
+    listing: viewListingWithFavoriteT
+    user?: User
+}) => {
     const { getCountryByVal } = useCountries()
 
     const location = useMemo(
@@ -38,7 +45,11 @@ const ListingCard = ({ listing }: { listing: viewListingT }) => {
                 </Link>
 
                 <div className="absolute right-3 top-3">
-                    <FavoriteButton listingId={listing.id} />
+                    <FavoriteButton
+                        user={user}
+                        listingId={listing.id}
+                        _isFavorite={!!listing.isFavorite}
+                    />
                 </div>
             </div>
 

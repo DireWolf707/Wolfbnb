@@ -3,10 +3,10 @@ import Link from 'next/link'
 import Image from 'next/image'
 import Search from './Search'
 import UserMenu from './UserMenu'
-import { auth } from '@/auth'
+import { getUser } from '@/lib/serverUtils'
 
 const Navbar = async () => {
-    const session = await auth()
+    const user = await getUser(false)
 
     return (
         <div className="flex items-center justify-between gap-2 border-b-2 p-2">
@@ -22,7 +22,7 @@ const Navbar = async () => {
 
             <Search />
 
-            <UserMenu user={session?.user} />
+            <UserMenu user={user} />
         </div>
     )
 }
