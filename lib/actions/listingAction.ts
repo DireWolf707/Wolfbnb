@@ -18,10 +18,12 @@ export const createListingAction = async (_data: createListingT) => {
     const image = (await storage.uploadFiles(data.image)).data?.url
     if (!image) throw new Error('Something went wrong!')
 
-    return await db
+    const result = await db
         .insert(listingTable)
         .values({ ...data, image, userId: user!.id! })
         .returning()
+
+    return result
 }
 
 export const getAllListingAction = async (filters: filterListingT) => {
@@ -90,4 +92,24 @@ export const unfavoriteListingAction = async (listingId: string) => {
                 eq(favouriteTable.listingId, listingId)
             )
         )
+}
+
+export const getAllFavoriteListingAction = async () => {
+    const user = await getUser()
+
+    const sq = db
+        .select()
+        .from(favouriteTable)
+        .where(eq(favouriteTable.userId, user!.id!))
+        .as('favorite')
+
+    const result: viewListingWithFavoriteT[] = await db
+        .select({
+            ...getTableColumns(listingTable),
+            isFavorite: favouriteTable,
+        })
+        .from(sq)
+        .innerJoin(listingTable, eq(listingTable.id, sq.listingId))
+
+    return result
 }

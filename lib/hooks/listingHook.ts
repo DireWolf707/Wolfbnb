@@ -4,7 +4,7 @@ import {
     favoriteListingAction,
     unfavoriteListingAction,
 } from '@/lib/actions/listingAction'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 
 export const useCreateListing = () => {
     const router = useRouter()
@@ -20,7 +20,14 @@ export const useFavoriteListing = () =>
         mutationFn: favoriteListingAction,
     })
 
-export const useUnfavoriteListing = () =>
-    useMutation({
+export const useUnfavoriteListing = () => {
+    const router = useRouter()
+    const path = usePathname()
+
+    return useMutation({
         mutationFn: unfavoriteListingAction,
+        onSuccess: () => {
+            if (path == '/favorite-listing') router.refresh()
+        },
     })
+}
