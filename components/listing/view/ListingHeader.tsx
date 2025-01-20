@@ -20,7 +20,6 @@ const ListingHeader = ({
         () => getCountryByVal(listing.location),
         [getCountryByVal, listing.location]
     )
-    console.log(listing)
 
     return (
         <div className="flex flex-col gap-4">

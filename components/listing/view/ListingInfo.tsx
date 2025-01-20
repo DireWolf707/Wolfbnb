@@ -3,8 +3,8 @@ import Avatar from '@/components/layout/Avatar'
 import { categories } from '@/lib/constants'
 import useCountries from '@/lib/hooks/useCountries'
 import { viewListingDetailT } from '@/lib/types'
+import dynamic from 'next/dynamic'
 import React, { useMemo } from 'react'
-import Map from '../create/Map'
 
 const ListingInfo = ({ listing }: { listing: viewListingDetailT }) => {
     const { getCountryByVal } = useCountries()
@@ -17,6 +17,14 @@ const ListingInfo = ({ listing }: { listing: viewListingDetailT }) => {
     const location = useMemo(
         () => getCountryByVal(listing.location),
         [getCountryByVal, listing.location]
+    )
+
+    const Map = useMemo(
+        () =>
+            dynamic(() => import('../create/Map'), {
+                ssr: false,
+            }),
+        []
     )
 
     return (
