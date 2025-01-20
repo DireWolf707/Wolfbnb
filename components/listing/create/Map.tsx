@@ -2,9 +2,9 @@ import { MapContainer, Marker, TileLayer } from 'react-leaflet'
 import { Icon } from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
-const Map = ({ center }: { center: [number, number] | null }) => {
+const Map = ({ center }: { center?: [number, number] | null }) => {
     return (
-        <div className="h-[500px]">
+        <div className="h-[50vh]">
             <MapContainer
                 className="h-full"
                 center={center || [0, 0]}

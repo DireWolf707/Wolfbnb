@@ -1,10 +1,11 @@
 'use server'
 import db from '@/drizzle/client'
 import storage from '@/uploadThing/client'
-import { favouriteTable, listingTable } from '@/drizzle/schema'
+import { favouriteTable, listingTable, userTable } from '@/drizzle/schema'
 import {
     createListingT,
     filterListingT,
+    viewListingDetailT,
     viewListingWithFavoriteT,
 } from '../types'
 import { listingSchema } from '../zodSchemas'
@@ -112,4 +113,34 @@ export const getAllFavoriteListingAction = async () => {
         .innerJoin(listingTable, eq(listingTable.id, sq.listingId))
 
     return result
+}
+
+export const getListingDetail = async (listingId: string) => {
+    if (!listingId) throw new Error('Listing id is missing!')
+
+    const user = await getUser()
+
+    const sq = db
+        .select()
+        .from(listingTable)
+        .where(eq(listingTable.id, listingId))
+        .as('listing')
+
+    const result: viewListingDetailT[] = await db
+        .select({
+            ...getTableColumns(listingTable),
+            isFavorite: favouriteTable,
+            user: userTable,
+        })
+        .from(sq)
+        .innerJoin(userTable, eq(sq.userId, userTable.id))
+        .leftJoin(
+            favouriteTable,
+            and(
+                eq(sq.id, favouriteTable.listingId),
+                eq(favouriteTable.userId, user!.id!)
+            )
+        )
+
+    return result[0]
 }

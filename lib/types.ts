@@ -5,6 +5,7 @@ import {
     favouriteTable,
     listingTable,
     reservationTable,
+    userTable,
 } from '@/drizzle/schema'
 
 export type createListingT = z.infer<typeof listingSchema>
@@ -16,9 +17,14 @@ export type createListingFormStepT = { [k in STEPS]: createListingFieldT[] }
 
 export type viewFavoriteT = typeof favouriteTable.$inferSelect
 
+export type viewUserT = typeof userTable.$inferSelect
+
 export type viewListingT = typeof listingTable.$inferSelect
 export type viewListingWithFavoriteT = viewListingT & {
     isFavorite?: viewFavoriteT | null
+}
+export type viewListingDetailT = viewListingWithFavoriteT & {
+    user: viewUserT
 }
 
 export type viewReservationT = typeof reservationTable.$inferSelect
