@@ -62,9 +62,10 @@ const ListingCard = ({
                     {listing.category}
                 </span>
 
-                <span className="text-sm font-bold">
-                    {listing.price}$ per night
-                </span>
+                <div className="flex items-center gap-1 text-sm font-bold">
+                    <span className="text-red-500">${listing.price}</span>
+                    <span>per night</span>
+                </div>
             </div>
         </div>
     )

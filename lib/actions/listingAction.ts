@@ -1,15 +1,21 @@
 'use server'
 import db from '@/drizzle/client'
 import storage from '@/uploadThing/client'
-import { favouriteTable, listingTable, userTable } from '@/drizzle/schema'
+import {
+    favouriteTable,
+    listingTable,
+    reservationTable,
+    userTable,
+} from '@/drizzle/schema'
 import {
     createListingT,
     filterListingT,
     viewListingDetailT,
     viewListingWithFavoriteT,
+    viewReservationT,
 } from '../types'
 import { listingSchema } from '../zodSchemas'
-import { and, desc, eq, getTableColumns, SQL } from 'drizzle-orm'
+import { and, desc, eq, getTableColumns, gte, sql, SQL } from 'drizzle-orm'
 import { getUser } from '../serverUtils'
 
 export const createListingAction = async (_data: createListingT) => {
@@ -35,25 +41,23 @@ export const getAllListingAction = async (filters: filterListingT) => {
     if (filters.category)
         conditions.push(eq(listingTable.category, filters.category))
 
-    const sq = db
-        .select()
-        .from(listingTable)
-        .where(and(...conditions))
-        .as('listing')
-
     let result: viewListingWithFavoriteT[]
     if (!user)
         result = await db
             .select()
-            .from(sq)
+            .from(listingTable)
+            .where(and(...conditions))
             .orderBy(desc(listingTable.createdAt))
     else
         result = await db
             .select({
                 ...getTableColumns(listingTable),
-                isFavorite: favouriteTable,
+                isFavorite: sql<boolean>`
+                    COALESCE(${favouriteTable.listingId} IS NOT NULL, FALSE)
+                `,
             })
-            .from(sq)
+            .from(listingTable)
+            .where(and(...conditions))
             .leftJoin(
                 favouriteTable,
                 and(
@@ -98,19 +102,19 @@ export const unfavoriteListingAction = async (listingId: string) => {
 export const getAllFavoriteListingAction = async () => {
     const user = await getUser()
 
-    const sq = db
-        .select()
-        .from(favouriteTable)
-        .where(eq(favouriteTable.userId, user!.id!))
-        .as('favorite')
-
     const result: viewListingWithFavoriteT[] = await db
         .select({
             ...getTableColumns(listingTable),
-            isFavorite: favouriteTable,
+            isFavorite: sql<boolean>`
+                COALESCE(${favouriteTable.listingId} IS NOT NULL, FALSE)
+            `,
         })
-        .from(sq)
-        .innerJoin(listingTable, eq(listingTable.id, sq.listingId))
+        .from(listingTable)
+        .where(eq(favouriteTable.userId, user!.id!))
+        .innerJoin(
+            favouriteTable,
+            eq(listingTable.id, favouriteTable.listingId)
+        )
 
     return result
 }
@@ -120,26 +124,46 @@ export const getListingDetail = async (listingId: string) => {
 
     const user = await getUser()
 
-    const sq = db
-        .select()
-        .from(listingTable)
-        .where(eq(listingTable.id, listingId))
-        .as('listing')
-
     const result: viewListingDetailT[] = await db
         .select({
             ...getTableColumns(listingTable),
-            isFavorite: favouriteTable,
             user: userTable,
+            isFavorite: sql<boolean>`
+                COALESCE(${favouriteTable.listingId} IS NOT NULL, FALSE)
+            `,
+            reservations: sql<viewReservationT[]>`COALESCE(
+                json_agg(${reservationTable})
+                FILTER (WHERE ${reservationTable.id} IS NOT NULL),
+                '[]'
+            )`,
         })
-        .from(sq)
-        .innerJoin(userTable, eq(sq.userId, userTable.id))
+        .from(listingTable)
+        .innerJoin(
+            userTable,
+            and(
+                eq(listingTable.id, listingId),
+                eq(listingTable.userId, userTable.id)
+            )
+        )
         .leftJoin(
             favouriteTable,
             and(
-                eq(sq.id, favouriteTable.listingId),
+                eq(listingTable.id, favouriteTable.listingId),
                 eq(favouriteTable.userId, user!.id!)
             )
+        )
+        .leftJoin(
+            reservationTable,
+            and(
+                eq(listingTable.id, reservationTable.listingId),
+                gte(reservationTable.startDate, new Date())
+            )
+        )
+        .groupBy(
+            listingTable.id,
+            favouriteTable.userId,
+            favouriteTable.listingId,
+            userTable.id
         )
 
     return result[0]

@@ -7,6 +7,7 @@ import {
     integer,
     uuid,
     varchar,
+    index,
 } from 'drizzle-orm/pg-core'
 import type { AdapterAccountType } from 'next-auth/adapters'
 
@@ -54,24 +55,29 @@ export const favouriteTable = pgTable(
         primaryKey({
             columns: [favouriteTable.userId, favouriteTable.listingId],
         }),
+        index().on(favouriteTable.userId),
     ]
 )
 
-export const reservationTable = pgTable('reservation', {
-    id: uuid().primaryKey().defaultRandom(),
-    userId: uuid()
-        .notNull()
-        .references(() => userTable.id, { onDelete: 'cascade' }),
-    listingId: uuid()
-        .notNull()
-        .references(() => listingTable.id, {
-            onDelete: 'cascade',
-        }),
-    price: integer().notNull(),
-    startDate: timestamp({ mode: 'date' }).notNull(),
-    endDate: timestamp({ mode: 'date' }).notNull(),
-    createdAt: timestamp().defaultNow(),
-})
+export const reservationTable = pgTable(
+    'reservation',
+    {
+        id: uuid().primaryKey().defaultRandom(),
+        userId: uuid()
+            .notNull()
+            .references(() => userTable.id, { onDelete: 'cascade' }),
+        listingId: uuid()
+            .notNull()
+            .references(() => listingTable.id, {
+                onDelete: 'cascade',
+            }),
+        price: integer().notNull(),
+        startDate: timestamp({ mode: 'date' }).notNull(),
+        endDate: timestamp({ mode: 'date' }).notNull(),
+        createdAt: timestamp().defaultNow(),
+    },
+    (reservationTable) => [index().on(reservationTable.listingId)]
+)
 
 export const accountTable = pgTable(
     'account',
