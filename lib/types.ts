@@ -15,15 +15,17 @@ export type viewUserT = typeof userTable.$inferSelect
 export type viewReservationT = typeof reservationTable.$inferSelect
 
 export type viewListingT = typeof listingTable.$inferSelect
-export type viewListingWithFavoriteT = viewListingT & {
+export type viewListingReservationT = viewListingT & {
     isFavorite?: boolean
+    reservation?: viewReservationT
 }
-export type viewListingDetailT = viewListingWithFavoriteT & {
+export type viewListingDetailT = viewListingReservationT & {
     user: viewUserT
     reservations: viewReservationT[]
 }
 
-export type filterListingT = Partial<Pick<viewListingT, 'category'>>
+export type filterListingT = Partial<Pick<viewListingT, 'category'>> &
+    Partial<{ user: boolean; favorite: boolean }>
 
 export const categoryEnumArray = [
     'Beach',

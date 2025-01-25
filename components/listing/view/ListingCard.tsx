@@ -1,16 +1,18 @@
-import { viewListingWithFavoriteT } from '@/lib/types'
+import { viewListingReservationT } from '@/lib/types'
 import React, { useMemo } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import FavoriteButton from './FavoriteButton'
 import useCountries from '@/lib/hooks/useCountries'
 import { User } from 'next-auth'
+import ListingActionButton from './ListingActionButton'
+import { format } from 'date-fns'
 
 const ListingCard = ({
     listing,
     user,
 }: {
-    listing: viewListingWithFavoriteT
+    listing: viewListingReservationT
     user?: User
 }) => {
     const { getCountryByVal } = useCountries()
@@ -20,16 +22,11 @@ const ListingCard = ({
         [getCountryByVal, listing.location]
     )
 
-    // const price = useMemo(
-    //     () => (reservation ? reservation.price : listing.price),
-    //     [reservation, listing.price]
-    // )
+    const reservationDate = useMemo(() => {
+        if (!listing.reservation) return null
 
-    // const reservationDate = useMemo(() => {
-    //     if (!reservation) return null
-
-    //     return `${format(reservation.startDate, 'PP')} - ${format(reservation.endDate, 'PP')}`
-    // }, [reservation])
+        return `${format(listing.reservation.startDate, 'PP')} - ${format(listing.reservation.endDate, 'PP')}`
+    }, [listing.reservation])
 
     return (
         <div className="flex flex-col gap-2">
@@ -58,15 +55,34 @@ const ListingCard = ({
                     {location?.region}, {location?.label}
                 </span>
 
-                <span className="text-sm font-semibold text-neutral-400">
-                    {listing.category}
-                </span>
+                {
+                    <span className="text-sm font-semibold text-neutral-400">
+                        {listing.reservation
+                            ? reservationDate
+                            : listing.category}
+                    </span>
+                }
 
                 <div className="flex items-center gap-1 text-sm font-bold">
-                    <span className="text-red-500">${listing.price}</span>
-                    <span>per night</span>
+                    {listing.reservation ? (
+                        <span className="text-red-500">
+                            ${listing.reservation.price}
+                        </span>
+                    ) : (
+                        <>
+                            <span className="text-red-500">
+                                ${listing.price}
+                            </span>
+                            <span>per night</span>
+                        </>
+                    )}
                 </div>
             </div>
+
+            <ListingActionButton
+                listingId={listing.id}
+                reservationId={listing.reservation?.id}
+            />
         </div>
     )
 }

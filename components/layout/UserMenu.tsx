@@ -42,22 +42,24 @@ const UserMenu = ({ user }: { user?: User }) => {
                         </DropdownMenuItem>
                     ) : (
                         <>
-                            <DropdownMenuItem onClick={() => {}}>
-                                My Trips
+                            <DropdownMenuItem>
+                                <Link href="/my-trips">My Trips</Link>
                             </DropdownMenuItem>
 
                             <DropdownMenuItem asChild>
-                                <Link href="/favorite-listing">
+                                <Link href="/favorite-listings">
                                     My Favorites
                                 </Link>
                             </DropdownMenuItem>
 
-                            <DropdownMenuItem onClick={() => {}}>
-                                My Reservations
+                            <DropdownMenuItem>
+                                <Link href="/my-reservations">
+                                    My Reservations
+                                </Link>
                             </DropdownMenuItem>
 
-                            <DropdownMenuItem onClick={() => {}}>
-                                My Properties
+                            <DropdownMenuItem>
+                                <Link href="/my-properties">My Properties</Link>
                             </DropdownMenuItem>
 
                             <DropdownMenuItem asChild className="md:hidden">

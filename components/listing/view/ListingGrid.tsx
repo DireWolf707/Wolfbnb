@@ -1,12 +1,12 @@
 import React from 'react'
 import ListingCard from './ListingCard'
 import { getUser } from '@/lib/serverUtils'
-import { viewListingWithFavoriteT } from '@/lib/types'
+import { viewListingReservationT } from '@/lib/types'
 
 const ListingGrid = async ({
     listings,
 }: {
-    listings: viewListingWithFavoriteT[]
+    listings: viewListingReservationT[]
 }) => {
     const user = await getUser(false)
 

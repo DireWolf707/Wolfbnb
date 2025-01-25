@@ -11,12 +11,13 @@ import {
     createListingT,
     filterListingT,
     viewListingDetailT,
-    viewListingWithFavoriteT,
+    viewListingReservationT,
     viewReservationT,
 } from '../types'
 import { listingSchema } from '../zodSchemas'
-import { and, desc, eq, getTableColumns, gte, sql, SQL } from 'drizzle-orm'
+import { and, desc, eq, getTableColumns, gte, lte, sql, SQL } from 'drizzle-orm'
 import { getUser } from '../serverUtils'
+import { differenceInCalendarDays } from 'date-fns'
 
 export const createListingAction = async (_data: createListingT) => {
     const user = await getUser()
@@ -33,6 +34,21 @@ export const createListingAction = async (_data: createListingT) => {
     return result
 }
 
+export const deleteListingAction = async (listingId: string) => {
+    if (!listingId) throw new Error('Listing id is missing!')
+
+    const user = await getUser()
+
+    await db
+        .delete(listingTable)
+        .where(
+            and(
+                eq(listingTable.userId, user!.id!),
+                eq(listingTable.id, listingId)
+            )
+        )
+}
+
 export const getAllListingAction = async (filters: filterListingT) => {
     const user = await getUser(false)
 
@@ -41,7 +57,11 @@ export const getAllListingAction = async (filters: filterListingT) => {
     if (filters.category)
         conditions.push(eq(listingTable.category, filters.category))
 
-    let result: viewListingWithFavoriteT[]
+    if (filters.user) conditions.push(eq(listingTable.userId, user!.id!))
+
+    if (filters.favorite) conditions.push(eq(favouriteTable.userId, user!.id!))
+
+    let result: viewListingReservationT[]
     if (!user)
         result = await db
             .select()
@@ -62,7 +82,7 @@ export const getAllListingAction = async (filters: filterListingT) => {
                 favouriteTable,
                 and(
                     eq(listingTable.id, favouriteTable.listingId),
-                    eq(listingTable.userId, user.id!)
+                    eq(listingTable.userId, user!.id!)
                 )
             )
             .orderBy(desc(listingTable.createdAt))
@@ -97,26 +117,6 @@ export const unfavoriteListingAction = async (listingId: string) => {
                 eq(favouriteTable.listingId, listingId)
             )
         )
-}
-
-export const getAllFavoriteListingAction = async () => {
-    const user = await getUser()
-
-    const result: viewListingWithFavoriteT[] = await db
-        .select({
-            ...getTableColumns(listingTable),
-            isFavorite: sql<boolean>`
-                COALESCE(${favouriteTable.listingId} IS NOT NULL, FALSE)
-            `,
-        })
-        .from(listingTable)
-        .where(eq(favouriteTable.userId, user!.id!))
-        .innerJoin(
-            favouriteTable,
-            eq(listingTable.id, favouriteTable.listingId)
-        )
-
-    return result
 }
 
 export const getListingDetail = async (listingId: string) => {
@@ -167,4 +167,126 @@ export const getListingDetail = async (listingId: string) => {
         )
 
     return result[0]
+}
+
+export const createReservationAction = async ({
+    listingId,
+    startDate,
+    endDate,
+}: {
+    listingId?: string
+    startDate?: Date
+    endDate?: Date
+}) => {
+    if (!listingId || !startDate || !endDate)
+        throw new Error('Data is missing!')
+    if (startDate >= endDate) throw new Error('Range is Invalid!')
+
+    const user = await getUser()
+
+    await db.transaction(async (tx) => {
+        const reservations = await tx
+            .select()
+            .from(reservationTable)
+            .where(
+                and(
+                    eq(reservationTable.listingId, listingId),
+                    gte(reservationTable.endDate, startDate),
+                    lte(reservationTable.startDate, endDate)
+                )
+            )
+
+        if (reservations.length != 0)
+            throw new Error('Reservation is Unavailable!')
+
+        const [listing] = await tx
+            .select()
+            .from(listingTable)
+            .where(eq(listingTable.id, listingId))
+
+        const numDays = differenceInCalendarDays(endDate, startDate)
+
+        await tx.insert(reservationTable).values({
+            listingId,
+            userId: user!.id!,
+            price: numDays * listing.price,
+            startDate,
+            endDate,
+        })
+    })
+}
+
+export const getAllReservationAction = async () => {
+    const user = await getUser()
+
+    const result: viewListingReservationT[] = await db
+        .select({
+            ...getTableColumns(listingTable),
+            reservation: reservationTable,
+            isFavorite: sql<boolean>`
+            COALESCE(${favouriteTable.listingId} IS NOT NULL, FALSE)
+        `,
+        })
+        .from(reservationTable)
+        .where(eq(reservationTable.userId, user!.id!))
+        .innerJoin(
+            listingTable,
+            eq(reservationTable.listingId, listingTable.id)
+        )
+        .leftJoin(
+            favouriteTable,
+            and(
+                eq(listingTable.id, favouriteTable.listingId),
+                eq(listingTable.userId, user!.id!)
+            )
+        )
+        .orderBy(desc(reservationTable.createdAt))
+
+    return result
+}
+
+export const deleteReservationAction = async ({
+    reservationId,
+    asGuest = false,
+}: {
+    reservationId: string
+    asGuest: boolean
+}) => {
+    if (!reservationId) throw new Error('Reservation id is missing!')
+
+    const user = await getUser()
+
+    if (asGuest) {
+        await db
+            .delete(reservationTable)
+            .where(
+                and(
+                    eq(reservationTable.id, reservationId),
+                    eq(reservationTable.userId, user!.id!)
+                )
+            )
+    } else {
+        await db.transaction(async (tx) => {
+            const [listing] = await tx
+                .select({
+                    ...getTableColumns(listingTable),
+                    reservation: reservationTable,
+                })
+                .from(reservationTable)
+                .where(eq(reservationTable.id, reservationId))
+                .innerJoin(
+                    listingTable,
+                    eq(reservationTable.listingId, listingTable.id)
+                )
+
+            await tx
+                .delete(reservationTable)
+                .where(
+                    and(
+                        eq(reservationTable.id, reservationId),
+                        eq(reservationTable.userId, listing.userId)
+                    )
+                )
+        })
+    }
 }
