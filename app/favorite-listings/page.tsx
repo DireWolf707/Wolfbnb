@@ -1,10 +1,10 @@
 import Heading from '@/components/layout/Heading'
 import ListingGrid from '@/components/listing/view/ListingGrid'
-import { getAllFavoriteListingAction } from '@/lib/actions/listingAction'
+import { getAllListingAction } from '@/lib/actions/listingAction'
 import React from 'react'
 
 const FavoriteListing = async () => {
-    const listings = await getAllFavoriteListingAction()
+    const listings = await getAllListingAction({ user: true, favorite: true })
 
     if (listings.length == 0)
         return (
