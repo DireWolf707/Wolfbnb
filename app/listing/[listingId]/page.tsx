@@ -1,5 +1,6 @@
 import ListingHeader from '@/components/listing/view/ListingHeader'
 import ListingInfo from '@/components/listing/view/ListingInfo'
+import ListingReservation from '@/components/listing/view/ListingReservation'
 import { getListingDetail } from '@/lib/actions/listingAction'
 import { getUser } from '@/lib/serverUtils'
 import React from 'react'
@@ -17,8 +18,12 @@ const ListingDetail = async ({
         <div className="flex flex-col gap-4 px-12 py-6">
             <ListingHeader listing={listing} user={user!} />
 
-            <div className="grid grid-cols-1 md:grid-cols-7">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-7">
                 <ListingInfo listing={listing} />
+
+                <div className="order-first col-span-1 md:order-last md:col-span-3">
+                    <ListingReservation listing={listing} />
+                </div>
             </div>
         </div>
     )
