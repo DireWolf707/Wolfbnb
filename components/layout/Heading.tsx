@@ -10,7 +10,7 @@ const Heading = ({
     center = false,
 }: {
     title: string
-    subtitle: string
+    subtitle?: string
     err?: FieldError
     center?: boolean
 }) => {

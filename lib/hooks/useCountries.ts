@@ -12,7 +12,7 @@ const formattedCountries: countryT[] = countries.map((c) => ({
 
 const useCountries = () => {
     const getCountryByVal = useCallback(
-        (val: string) => formattedCountries.find((c) => c.value == val),
+        (val?: string) => formattedCountries.find((c) => c.value == val),
         []
     )
 

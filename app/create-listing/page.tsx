@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import {
@@ -12,7 +12,7 @@ import {
 } from '@/lib/types'
 import { listingSchema } from '@/lib/zodSchemas'
 import CategoryInput from '@/components/listing/create/CategoryInput'
-import FormNavigationButton from '@/components/listing/create/FormNavigationButton'
+import NavigationButton from '@/components/listing/create/NavigationButton'
 import LocationInput from '@/components/listing/create/LocationInput'
 import CounterInput from '@/components/listing/create/CounterInput'
 import ImageUpload from '@/components/listing/create/ImageUpload'
@@ -23,6 +23,8 @@ import { Textarea } from '@/components/ui/textarea'
 import FormError from '@/components/listing/create/FormError'
 import { DollarSignIcon } from 'lucide-react'
 import Heading from '@/components/layout/Heading'
+import { toast } from 'sonner'
+import { useCreateListing } from '@/lib/hooks/listingHook'
 
 const defaultValues: unsafeCreateListingT = {
     guestCount: 1,
@@ -42,6 +44,7 @@ const formFields: createListingFormStepT = {
 
 const CreateListing = () => {
     const [step, setStep] = useState(STEPS.CATEGORY)
+    const { mutateAsync: createListing, isPending } = useCreateListing()
     const {
         watch,
         register,
@@ -55,6 +58,44 @@ const CreateListing = () => {
     })
 
     const image = watch('image') as MyFile
+
+    const onBack = () =>
+        setStep((prev) => {
+            if (prev == 0) return 0
+            return prev - 1
+        })
+
+    const onNext = async () => {
+        const fields = formFields[step]
+        const output = await trigger(fields)
+
+        if (!output) return
+
+        if (step == STEPS.PRICE)
+            await handleSubmit(
+                (data) =>
+                    toast.promise(createListing(data), {
+                        loading: 'Listing your property...',
+                        success: () => 'Listing created successfully',
+                        error: () => 'Something went wrong',
+                    }),
+                (e) =>
+                    Object.entries(e).forEach(([key, err]) =>
+                        toast.error(key + ': ' + err.message)
+                    )
+            )()
+        else setStep((prev) => prev + 1)
+    }
+
+    const actionLabel = useMemo(
+        () => (step == STEPS.PRICE ? 'Create' : 'Next'),
+        [step]
+    )
+
+    const secondaryActionLabel = useMemo(
+        () => (step == STEPS.CATEGORY ? undefined : 'Back'),
+        [step]
+    )
 
     return (
         <form className="mx-auto my-6 flex w-[480px] flex-col gap-8 overflow-y-auto rounded-xl border-2 p-4">
@@ -195,12 +236,12 @@ const CreateListing = () => {
                 </>
             )}
 
-            <FormNavigationButton
-                handleSubmit={handleSubmit}
-                formFields={formFields}
-                trigger={trigger}
-                step={step}
-                setStep={setStep}
+            <NavigationButton
+                onNext={onNext}
+                onBack={onBack}
+                actionLabel={actionLabel}
+                secondaryActionLabel={secondaryActionLabel}
+                disabled={isPending}
             />
         </form>
     )

@@ -14,7 +14,7 @@ const LocationInput = ({
     value,
     onClick,
 }: {
-    value: string
+    value?: string
     onClick: (val: string) => void
 }) => {
     const { countries, getCountryByVal } = useCountries()
