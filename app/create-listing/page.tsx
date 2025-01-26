@@ -98,7 +98,7 @@ const CreateListing = () => {
     )
 
     return (
-        <form className="mx-auto my-6 flex w-[480px] flex-col gap-8 overflow-y-auto rounded-xl border-2 p-4">
+        <form className="mx-auto my-6 flex w-full flex-col gap-8 overflow-y-auto rounded-xl border-2 p-4 md:w-[480px]">
             {step == STEPS.CATEGORY && (
                 <>
                     <Heading
