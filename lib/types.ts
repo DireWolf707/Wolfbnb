@@ -24,7 +24,12 @@ export type viewListingDetailT = viewListingReservationT & {
     reservations: viewReservationT[]
 }
 
-export type filterListingT = Partial<Pick<viewListingT, 'category'>> &
+export type filterListingT = Partial<
+    Pick<
+        viewListingT,
+        'category' | 'bathroomCount' | 'roomCount' | 'guestCount' | 'location'
+    >
+> &
     Partial<{ user: boolean; favorite: boolean }>
 
 export const categoryEnumArray = [

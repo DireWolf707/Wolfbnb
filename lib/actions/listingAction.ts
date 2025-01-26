@@ -15,7 +15,20 @@ import {
     viewReservationT,
 } from '../types'
 import { listingSchema } from '../zodSchemas'
-import { and, desc, eq, getTableColumns, gte, lte, sql, SQL } from 'drizzle-orm'
+import {
+    and,
+    between,
+    desc,
+    eq,
+    getTableColumns,
+    gte,
+    lte,
+    not,
+    or,
+    sql,
+    SQL,
+    SQLWrapper,
+} from 'drizzle-orm'
 import { getUser } from '../serverUtils'
 import { differenceInCalendarDays } from 'date-fns'
 
@@ -60,6 +73,18 @@ export const getAllListingAction = async (filters: filterListingT) => {
     if (filters.user) conditions.push(eq(listingTable.userId, user!.id!))
 
     if (filters.favorite) conditions.push(eq(favouriteTable.userId, user!.id!))
+
+    if (filters.bathroomCount)
+        conditions.push(gte(listingTable.bathroomCount, filters.bathroomCount))
+
+    if (filters.roomCount)
+        conditions.push(gte(listingTable.roomCount, filters.roomCount))
+
+    if (filters.guestCount)
+        conditions.push(gte(listingTable.guestCount, filters.guestCount))
+
+    if (filters.location)
+        conditions.push(eq(listingTable.location, filters.location))
 
     let result: viewListingReservationT[]
     if (!user)
@@ -166,6 +191,8 @@ export const getListingDetail = async (listingId: string) => {
             userTable.id
         )
 
+    console.log(result[0].reservations)
+
     return result[0]
 }
 
@@ -191,8 +218,7 @@ export const createReservationAction = async ({
             .where(
                 and(
                     eq(reservationTable.listingId, listingId),
-                    gte(reservationTable.endDate, startDate),
-                    lte(reservationTable.startDate, endDate)
+                    between(reservationTable.endDate, startDate, endDate)
                 )
             )
 

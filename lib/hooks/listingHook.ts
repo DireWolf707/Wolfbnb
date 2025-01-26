@@ -14,7 +14,7 @@ export const useCreateListing = () => {
 
     return useMutation({
         mutationFn: createListingAction,
-        onSuccess: () => router.push('/my-listing'),
+        onSuccess: () => router.push('/my-properties'),
     })
 }
 
