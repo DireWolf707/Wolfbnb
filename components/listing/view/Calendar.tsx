@@ -14,16 +14,14 @@ const Calendar = ({
     disabledDates?: Date[]
 }) => {
     return (
-        <div className="m-8 overflow-hidden rounded-lg">
-            <DateRange
-                rangeColors={['#262626']}
-                ranges={[value]}
-                onChange={onChange}
-                showDateDisplay={false}
-                minDate={new Date()}
-                disabledDates={disabledDates}
-            />
-        </div>
+        <DateRange
+            rangeColors={['#262626']}
+            ranges={[value]}
+            onChange={onChange}
+            showDateDisplay={false}
+            minDate={new Date()}
+            disabledDates={disabledDates}
+        />
     )
 }
 

@@ -15,10 +15,10 @@ const ListingDetail = async ({
     const user = await getUser()
 
     return (
-        <div className="flex flex-col gap-4 px-12 py-6">
+        <div className="flex flex-col gap-4 p-6">
             <ListingHeader listing={listing} user={user!} />
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-7">
+            <div className="grid grid-cols-1 md:grid-cols-7 md:gap-4">
                 <ListingInfo listing={listing} />
 
                 <div className="order-first col-span-1 md:order-last md:col-span-3">
