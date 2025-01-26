@@ -4,19 +4,15 @@ import { SearchIcon } from 'lucide-react'
 import {
     Dialog,
     DialogContent,
-    DialogHeader,
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog'
 import Heading from './Heading'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Range, RangeKeyDict } from 'react-date-range'
 import qs from 'query-string'
-import { formatISO } from 'date-fns'
 import LocationInput from '../listing/create/LocationInput'
 import NavigationButton from '../listing/create/NavigationButton'
 import CounterInput from '../listing/create/CounterInput'
-import Calendar from '@/components/listing/view/Calendar'
 import useCountries from '@/lib/hooks/useCountries'
 
 enum STEPS {
