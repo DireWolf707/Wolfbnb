@@ -6,6 +6,7 @@ import db from './drizzle/client'
 import { userTable, accountTable } from './drizzle/schema'
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+    trustHost: true,
     adapter: DrizzleAdapter(db, {
         usersTable: userTable,
         accountsTable: accountTable,
