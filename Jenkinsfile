@@ -2,11 +2,9 @@ pipeline {
     agent any
 
     environment {
-        CONTAINER_NAME = "wolfbnb"
         CONTAINER_ENVIRONMENT = "node:22-alpine"
         CONTAINER_PORT = "3000"
 
-        ENV_CREDS_ID = "${CONTAINER_NAME}-env"
         ENV_FILE_PATH = "./.env.local"
     }
 
