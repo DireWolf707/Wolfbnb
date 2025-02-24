@@ -4,6 +4,7 @@ pipeline {
     environment {
         CONTAINER_ENVIRONMENT = "node:22-alpine"
         CONTAINER_PORT = "3000"
+        HOST_PORT = "3000"
 
         ENV_FILE_PATH = "./.env.local"
     }
